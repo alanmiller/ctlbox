@@ -13,6 +13,23 @@ uint8_t key_usage[10] = {0x0c, 0x12, 0x3a, 0x0e, 0x3c, 0x42, 0x26, 0x27, 0x50, 0
 uint button_pins[10] =  {6, 7, 8, 9, 10, 11, 12, 13, 20, 21};
 bool button_state[10] = {false};
 
+const char* key_usage_to_str[256] = {0}; // Initialize all elements to NULL
+void setup() {
+    puts("  Getting serial number.");
+    get_serial_number();
+    puts("  Mapping buttons.");
+    key_usage_to_str[0x0c] = "i";
+    key_usage_to_str[0x12] = "o";
+    key_usage_to_str[0x3a] = "F1";
+    key_usage_to_str[0x0e] = "k";
+    key_usage_to_str[0x3c] = "f3";
+    key_usage_to_str[0x42] = "f9";
+    key_usage_to_str[0x26] = "9";
+    key_usage_to_str[0x27] = "0";
+    key_usage_to_str[0x50] = "left-arrow";
+    key_usage_to_str[0x4f] = "right-arrow";
+}
+
 // This callback will be invoked when we need to send a report.
 void tud_hid_report_cb(uint8_t report_id, hid_report_type_t report_type, uint8_t* buffer, uint16_t bufsize) {
     // Clear the report
@@ -60,8 +77,8 @@ int main(void) {
   tusb_init();
   
   puts("Initializing controlbox firmware....");
-  puts("  Getting serial number.");
-  get_serial_number();
+  setup();
+ 
   
   if (cyw43_arch_init()) {
     puts("  Wi-Fi init failed.");
@@ -93,12 +110,13 @@ int main(void) {
                 // Button state has changed; send a keyboard(1) or a gamepad report(2)
                 if (new_state) {
                   // Key press set the first keycode to the key usage
-                  printf("  Button %d, gpio %d, old/new state: %s/%s , sending: %x\n",
+                  const char* key = key_usage_to_str[key_usage[i]];
+                  printf("  Button %d, gpio %d, old/new state: %s/%s , sending: %s\n",
                         i+1, 
                         (int)button_pins[i], 
                         old_state ? "true" : "false", 
                         new_state ? "true" : "false", 
-                        key_usage[i]);
+                        key);
                   keycode[0] = key_usage[i];
                   pressed = true;
                 } else {
