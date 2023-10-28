@@ -15,7 +15,7 @@ void get_serial_number() {
     }
 }
 
-char const *string_desc_arr [] = {
+char const* string_desc_arr [] = {
     (const char[]) {0x09, 0x04}, // 0: is supported language is English (0x0409)
     "AlanMiller",                // 1: Manufacturer
     "GolfSimController",         // 2: Product
@@ -115,38 +115,27 @@ void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_
 }
 
 uint16_t const* tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
-    
-    printf("tud_descriptor_string_cb called with index %d, langid %04x\n", index, langid);
-    printf("HID report descriptor length: %zu\n", sizeof(desc_hid_report));
 
     (void) langid;
-    uint8_t chr_count = 0;
+    uint8_t chr_count;
 
     if (index == 0) {
         memcpy(string_desc, string_desc_arr[0], 2);
         chr_count = 1;
-        printf("Language ID: 0x%04x\n", string_desc[1]);
     } else {
-        // Convert ASCII string into UTF-16
         if (!(index < sizeof(string_desc_arr)/sizeof(string_desc_arr[0]))) return NULL;
         const char* str = string_desc_arr[index];
-
         // Cap at max char
         chr_count = strlen(str);
         if (chr_count > 31) chr_count = 31;
-
-        string_desc[0] = (TUSB_DESC_STRING << 8 ) | (2*chr_count + 2);
-
+        // Convert ASCII string into UTF-16
         for(uint8_t i=0; i<chr_count; i++) {
             string_desc[1+i] = str[i];
-            }
+        }
     }
-    // Print the string descriptor
-    printf("String descriptor: ");
-    for (uint8_t i = 0; i < chr_count; i++) {
-        printf("%c", string_desc[1+i]);
-    }
-    printf("\n");
+    // first byte is length (including header), second byte is string type
+    string_desc[0] = (TUSB_DESC_STRING << 8 ) | (2*chr_count + 2);
+
     return string_desc;
 }
 

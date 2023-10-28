@@ -9,6 +9,8 @@ extern tusb_desc_device_t const desc_device;
 // Configuration descriptor
 extern uint8_t const desc_configuration[];
 
+void get_serial_number();
+
 // Callback functions
 extern uint8_t const* tud_descriptor_device_cb(void);
 extern uint8_t const* tud_descriptor_configuration_cb(uint8_t index);

@@ -9,7 +9,7 @@ set(WIFI_SSID $ENV{WIFI_SSID})
 include($ENV{PICO_SDK_PATH}/pico_sdk_init.cmake)
 
 # Project
-project(ctlbox VERSION 1.0.1)
+project(ctlbox VERSION 1.0.2)
 
 pico_sdk_init()
 
